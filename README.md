@@ -1,3 +1,27 @@
+Modifications by https://github.com/Hanyoma
+===========================================
+Beginning with the following source code (https://github.com/Craxy/ToggleTrafficLights), I made some minor modifications so that instead of toggling traffic lights it would output to the debug window information about the intersection.
+This allowed us to obtain access to the intersections NetNode and its corresponding segments, which reveals information about the traffic light's state and the traffic density of each segment.
+
+The original application works by allowing you to select an intersection to enable or disable traffic lights.
+Intersections are identified through use of the m_hoverInstance object, which also reveals details about the area the mouse is currently hovering over (such as NodeID.
+Using this information, we were able to extract more information about intersections.
+
+The changes I made were as follows:
+
+In ToggleTrafficLightsTool.cs:
+* Removed the ability to disable traffic lights on click by commenting out the body of "ToggleTrafficLights(NetNode.Flags flags)."
+* Added  code to "ToggleTrafficLights(int nodeId)" to extract the 8 segments associated with the intersection.
+
+This allows us check information about the segments, which led to the following observations:
+* Each segment has a .m_flags field, which can tell is if the segment is a road or not (> 1 means it is a road).
+* Using the segmentIDs, we were able to get the state of the traffic light attached to that segment. We assume we can also use this ID to control the traffic lights.
+* We were also able to check the traffic density field of the segments, which allowed us to verify that the field indeed corresponds to the traffic denstiy seen in the game (higher number means more dense traffic).
+
+We hope that we can use these results to create a simple application with the ability to manually identify and change the state of traffic light intersections in the game.
+
+
+
 Toggle Traffic Lights
 =====================
 Mod for Cities:Skylines  
