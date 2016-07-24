@@ -6,7 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace NetworkAPI
+namespace NetworkInterface
 {
     public enum MethodType {
         GET, SET, EXECUTE, GETDENSITY, GETSTATE, SETSTATE

@@ -15,7 +15,7 @@ using UnityEngine;
 using ColossalFramework.UI;
 using ColossalFramework.Plugins;
 
-namespace NetworkAPI
+namespace NetworkInterface
 {
     public class Network
     {
@@ -43,6 +43,18 @@ namespace NetworkAPI
 
             }
             else if (request.Method == MethodType.EXECUTE)
+            {
+
+            }
+            else if (request.Method == MethodType.GETDENSITY)
+            {
+
+            }
+            else if (request.Method == MethodType.GETSTATE)
+            {
+
+            }
+            else if (request.Method == MethodType.SETSTATE)
             {
 
             }

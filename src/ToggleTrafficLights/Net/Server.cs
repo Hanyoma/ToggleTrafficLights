@@ -3,32 +3,21 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
 
 using System.Threading;
 using Newtonsoft.Json;
 
-using System.Linq;
-
 using ICities;
 using UnityEngine;
-using ColossalFramework.UI;
 using ColossalFramework.Plugins;
 
-namespace NetworkAPI
+namespace NetworkInterface
 {
-    public class NetworkAPIMod : IUserMod
-    {
-        public string Name { get { return "Network API"; } }
-        public string Description { get { return "This mod exposes the Cities: Skylines Data and Interfaces Through Sockets."; } }
-    }
-
     public class ThreadingExension : ThreadingExtensionBase
     {
         UdpClient listener;
         Thread listenerThread;
-        NetworkAPI.Network networkAPI;
+        NetworkInterface.Network networkAPI;
 
         public void ListenerThreadFunc()
         {
@@ -72,7 +61,7 @@ namespace NetworkAPI
         {
             try
             {
-                networkAPI = new NetworkAPI.Network();
+                networkAPI = new NetworkInterface.Network();
 
                 IPEndPoint ipep = new IPEndPoint(IPAddress.Any, 11000);
                 listener = new UdpClient(ipep);
