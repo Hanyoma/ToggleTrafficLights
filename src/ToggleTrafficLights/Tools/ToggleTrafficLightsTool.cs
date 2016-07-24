@@ -446,22 +446,22 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
             node.m_flags = ToggleTrafficLights(node.m_flags);
 
             /* #TODO
-            * Nicholas Lewis
-            * Added this to get data about traffic intersections
-            *
-            */
+	     * Nicholas Lewis
+	     * Added this to get data about traffic intersections
+	     *
+	     */
             NetSegment[] segments =
-{
+		{
 
-             NetManager.instance.m_segments.m_buffer[node.m_segment0],
-             NetManager.instance.m_segments.m_buffer[node.m_segment1],
-             NetManager.instance.m_segments.m_buffer[node.m_segment2],
-             NetManager.instance.m_segments.m_buffer[node.m_segment3],
-             NetManager.instance.m_segments.m_buffer[node.m_segment4],
-             NetManager.instance.m_segments.m_buffer[node.m_segment5],
-             NetManager.instance.m_segments.m_buffer[node.m_segment6],
-             NetManager.instance.m_segments.m_buffer[node.m_segment7]
-        };
+		    NetManager.instance.m_segments.m_buffer[node.m_segment0],
+		    NetManager.instance.m_segments.m_buffer[node.m_segment1],
+		    NetManager.instance.m_segments.m_buffer[node.m_segment2],
+		    NetManager.instance.m_segments.m_buffer[node.m_segment3],
+		    NetManager.instance.m_segments.m_buffer[node.m_segment4],
+		    NetManager.instance.m_segments.m_buffer[node.m_segment5],
+		    NetManager.instance.m_segments.m_buffer[node.m_segment6],
+		    NetManager.instance.m_segments.m_buffer[node.m_segment7]
+		};
 
 
             RoadBaseAI.TrafficLightState out1;
@@ -478,21 +478,11 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
                 catch (Exception e)
                 {
                     DebugOutputPanel.AddMessage(PluginManager.MessageType.Error,
-                        "Error: " + e.Message);
+						"Error: " + e.Message);
                     Console.WriteLine("Error: " + e.Message);
                 }
 
             }
-
-
-
-
-
-
-
-
-
-
 
             Singleton<NetManager>.instance.m_nodes.m_buffer[nodeId] = node;
         }
