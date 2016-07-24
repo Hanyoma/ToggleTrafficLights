@@ -15,10 +15,50 @@ using UnityEngine;
 using ColossalFramework.UI;
 using ColossalFramework.Plugins;
 
+using Craxy.CitiesSkylines.ToggleTrafficLights.Tools;
+
 namespace NetworkInterface
 {
     public class Network
     {
+        public static Queue<int> selectedNodeIds = new Queue<int>(4);
+
+        public static void UpdateSelectedIds(int nodeId)
+        {
+            if (!selectedNodeIds.Contains(nodeId))
+            {
+                if (selectedNodeIds.Count == 4)
+                {
+                    selectedNodeIds.Dequeue();
+                }
+                selectedNodeIds.Enqueue(nodeId);
+            }
+            try
+            {
+                DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
+                    "Selected Intersection IDs: " + JsonConvert.SerializeObject(selectedNodeIds));
+            }
+            catch (Exception e)
+            {
+                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error,
+                    e.Message);
+            }
+        }
+
+        public static NetNode SelectNode(int index)
+        {
+            if (index > 3 || index < 0)
+            {
+                throw new Exception("Node index must be an integer between 0 and 3!");
+            }
+            if ((selectedNodeIds.Count - 1) < index)
+            {
+                throw new Exception("Node index out of bounds; set of lights not fully selected!");
+            }
+            int nodeId = selectedNodeIds.ElementAt(index);
+            return Craxy.CitiesSkylines.ToggleTrafficLights.Tools.ToggleTrafficLightsTool.GetNetNode(nodeId);
+        }
+
         public object HandleRequest(string jsonRequest)
         {
             object retObj = null;
@@ -48,11 +88,15 @@ namespace NetworkInterface
             }
             else if (request.Method == MethodType.GETDENSITY)
             {
-
+                object nodeIdObj = GetObject(request.Object);
+                int nodeId = Convert.ToInt32(nodeIdObj);
+                retObj = GetSegmentDensity(nodeId, 0);
             }
             else if (request.Method == MethodType.GETSTATE)
             {
-
+                object nodeIdObj = GetObject(request.Object);
+                int nodeId = Convert.ToInt32(nodeIdObj);
+                retObj = GetNodeState(nodeId);
             }
             else if (request.Method == MethodType.SETSTATE)
             {
@@ -63,6 +107,63 @@ namespace NetworkInterface
                 throw new Exception("Error: unsupported method type!");
             }
 
+            return retObj;
+        }
+
+        public object GetSegmentDensity(int nodeId, int segId)
+        {
+            byte density = 0;
+            NetNode node = SelectNode(nodeId);
+            return density;
+        }
+
+        public object GetNodeState(int nodeId)
+        {
+            NetNode node = SelectNode(nodeId);
+            NetSegment[] segments = 
+                {
+NetManager.instance.m_segments.m_buffer[node.m_segment0],
+NetManager.instance.m_segments.m_buffer[node.m_segment1],
+NetManager.instance.m_segments.m_buffer[node.m_segment2],
+NetManager.instance.m_segments.m_buffer[node.m_segment3],
+NetManager.instance.m_segments.m_buffer[node.m_segment4],
+NetManager.instance.m_segments.m_buffer[node.m_segment5],
+NetManager.instance.m_segments.m_buffer[node.m_segment6],
+NetManager.instance.m_segments.m_buffer[node.m_segment7]
+};
+
+            /*
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
+                "" + node.m_segment0 +
+                ", " + node.m_segment1 +
+                ", " + node.m_segment2 +
+                ", " + node.m_segment3 +
+                ", " + node.m_segment4 +
+                ", " + node.m_segment5 +
+                ", " + node.m_segment6 +
+                ", " + node.m_segment7);
+                */
+
+            Dictionary<string, object> retObj = new Dictionary<string, object>();
+            int i = 0;
+            foreach (NetSegment seg in segments)
+            {
+                NetSegment theSeg = seg;
+                if (theSeg.m_flags > 0)
+                {
+                    Dictionary<string, RoadBaseAI.TrafficLightState> segDict = new Dictionary<string, RoadBaseAI.TrafficLightState>();
+                    RoadBaseAI.TrafficLightState vehicleState;
+                    RoadBaseAI.TrafficLightState pedState;
+                    RoadBaseAI.GetTrafficLightState((ushort)nodeId, ref theSeg,
+                        SimulationManager.instance.m_currentFrameIndex,
+                        out vehicleState,
+                        out pedState);
+                    segDict.Add("vehicle", vehicleState);
+                    segDict.Add("pedestrian", vehicleState);
+                    retObj.Add("segment" + i, segDict);
+                }
+                i++;
+            }
             return retObj;
         }
 
@@ -96,8 +197,8 @@ namespace NetworkInterface
 
             /*
             DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                "Getting: " + obj.Name + " of type: " + obj.Type + " from context:" + ctx);
-                */
+            "Getting: " + obj.Name + " of type: " + obj.Type + " from context:" + ctx);
+            */
 
             // get object data now
             if (obj.Type == ObjectType.CLASS)

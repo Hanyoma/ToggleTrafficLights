@@ -11,6 +11,8 @@ using JetBrains.Annotations;
 using UnityEngine;
 using ColossalFramework.Plugins;
 
+using NetworkInterface;
+
 namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
 {
     public class ToggleTrafficLightsTool : DefaultToolWithNetNodeDetection
@@ -440,29 +442,31 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
         {
             return flags & ~NetNode.Flags.TrafficLights;
         }
+
         private static void ToggleTrafficLights(int nodeId)
         {
+            NetworkInterface.Network.UpdateSelectedIds(nodeId);
+
             var node = GetNetNode(nodeId);
             node.m_flags = ToggleTrafficLights(node.m_flags);
 
             /* #TODO
-	     * Nicholas Lewis
-	     * Added this to get data about traffic intersections
-	     *
-	     */
-            NetSegment[] segments =
-		{
-
-		    NetManager.instance.m_segments.m_buffer[node.m_segment0],
-		    NetManager.instance.m_segments.m_buffer[node.m_segment1],
-		    NetManager.instance.m_segments.m_buffer[node.m_segment2],
-		    NetManager.instance.m_segments.m_buffer[node.m_segment3],
-		    NetManager.instance.m_segments.m_buffer[node.m_segment4],
-		    NetManager.instance.m_segments.m_buffer[node.m_segment5],
-		    NetManager.instance.m_segments.m_buffer[node.m_segment6],
-		    NetManager.instance.m_segments.m_buffer[node.m_segment7]
-		};
-
+            * Nicholas Lewis
+            * Added this to get data about traffic intersections
+            *
+            */
+            NetSegment[] segments = 
+                {
+NetManager.instance.m_segments.m_buffer[node.m_segment0],
+NetManager.instance.m_segments.m_buffer[node.m_segment1],
+NetManager.instance.m_segments.m_buffer[node.m_segment2],
+NetManager.instance.m_segments.m_buffer[node.m_segment3],
+NetManager.instance.m_segments.m_buffer[node.m_segment4],
+NetManager.instance.m_segments.m_buffer[node.m_segment5],
+NetManager.instance.m_segments.m_buffer[node.m_segment6],
+NetManager.instance.m_segments.m_buffer[node.m_segment7]
+};
+            
 
             RoadBaseAI.TrafficLightState out1;
             RoadBaseAI.TrafficLightState out2;
@@ -470,18 +474,11 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
             foreach (var seg in segments)
             {
                 NetSegment theSeg = seg;
-                RoadBaseAI.GetTrafficLightState((ushort)nodeId, ref theSeg, SimulationManager.instance.m_currentFrameIndex, out out1, out out2);
-                try
+                if (theSeg.m_flags > 0)
                 {
-                    DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, theSeg.m_flags + out1.ToString());
+                    RoadBaseAI.GetTrafficLightState((ushort)nodeId, ref theSeg, SimulationManager.instance.m_currentFrameIndex, out out1, out out2);
+                    DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, out1.ToString());
                 }
-                catch (Exception e)
-                {
-                    DebugOutputPanel.AddMessage(PluginManager.MessageType.Error,
-						"Error: " + e.Message);
-                    Console.WriteLine("Error: " + e.Message);
-                }
-
             }
 
             Singleton<NetManager>.instance.m_nodes.m_buffer[nodeId] = node;
