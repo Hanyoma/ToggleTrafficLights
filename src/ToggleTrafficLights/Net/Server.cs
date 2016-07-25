@@ -13,7 +13,7 @@ using ColossalFramework.Plugins;
 
 namespace NetworkInterface
 {
-    public class ThreadingExension : ThreadingExtensionBase
+    public class Server
     {
         UdpClient listener;
         Thread listenerThread;
@@ -36,8 +36,8 @@ namespace NetworkInterface
 
                 string command = Encoding.ASCII.GetString(data, 0, data.Length);
 
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                    "Got connection from: " + sender.ToString());
+                string message = "Got connection from: " + sender.ToString();
+                Log(message);
 
                 string response = "";
                 try
@@ -46,9 +46,7 @@ namespace NetworkInterface
                 }
                 catch (Exception e)
                 {
-                    DebugOutputPanel.AddMessage(PluginManager.MessageType.Error,
-                        e.Message);
-                    Debug.Log(e.Message);
+                    Log(e.Message);
                     response = JsonConvert.SerializeObject(e.Message);
                 }
                 
@@ -57,7 +55,15 @@ namespace NetworkInterface
             }
         }
 
-        public override void OnCreated(IThreading threading)
+        public void Log(string message)
+        {
+            //DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, message);
+            //UnityEngine.Debug.Log(message);
+            //Debug.Log(message);
+            //Console.WriteLine(message);
+        }
+
+        public void Start()
         {
             try
             {
@@ -68,20 +74,18 @@ namespace NetworkInterface
                 listener.Client.ReceiveTimeout = 50;
                 listenerThread = new Thread(new ThreadStart(this.ListenerThreadFunc));
                 listenerThread.Start();
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "Server up");
+                string message = "Server up";
+                Log(message);
             }
             catch (Exception e)
             {
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error,
-                    "Error: " + e.Message);
-                Console.WriteLine("Error: " + e.Message);
+                string message = "Error starting server: " + e.Message;
+                Log(message);
             }
-            base.OnCreated(threading);
         }
 
-        public override void OnReleased()
+        public void Stop()
         {
-            base.OnReleased();
             listenerThread.Abort();
             listener.Close();
         }

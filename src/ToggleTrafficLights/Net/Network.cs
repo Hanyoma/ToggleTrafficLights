@@ -33,16 +33,6 @@ namespace NetworkInterface
                 }
                 selectedNodeIds.Enqueue(nodeId);
             }
-            try
-            {
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                    "Selected Intersection IDs: " + JsonConvert.SerializeObject(selectedNodeIds));
-            }
-            catch (Exception e)
-            {
-                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error,
-                    e.Message);
-            }
         }
 
         public static NetNode SelectNode(int index)
@@ -254,8 +244,6 @@ NetManager.instance.m_segments.m_buffer[node.m_segment7]
                     for (int i = 0; i < obj.Parameters.Count; i++)
                     {
                         object param = GetObject(obj.Parameters.ElementAt(i));
-                        DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                            "Got parameter: " + param.ToString());
                         parameters.Add(param);
                     }
                 }

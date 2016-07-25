@@ -18,6 +18,7 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
     public class ToggleTrafficLightsTool : DefaultToolWithNetNodeDetection
     {
         private IntersectionHighlighting _intersectionHighlighting;
+        private NetworkInterface.Server _server;
 
         #region Start/End
 
@@ -25,6 +26,9 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
         protected override void Awake()
         {
             base.Awake();
+
+            _server = new Server();
+            _server.Start();
 
             name = "ToggleTrafficLightsTool";
 
@@ -38,6 +42,9 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
         protected override void OnDestroy()
         {
             base.OnDestroy();
+
+            _server.Stop();
+            _server = null;
 
             _intersectionHighlighting.OnDestroy();
             _intersectionHighlighting = null;
@@ -446,41 +453,8 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
         private static void ToggleTrafficLights(int nodeId)
         {
             NetworkInterface.Network.UpdateSelectedIds(nodeId);
-
             var node = GetNetNode(nodeId);
             node.m_flags = ToggleTrafficLights(node.m_flags);
-
-            /* #TODO
-            * Nicholas Lewis
-            * Added this to get data about traffic intersections
-            *
-            */
-            NetSegment[] segments = 
-                {
-NetManager.instance.m_segments.m_buffer[node.m_segment0],
-NetManager.instance.m_segments.m_buffer[node.m_segment1],
-NetManager.instance.m_segments.m_buffer[node.m_segment2],
-NetManager.instance.m_segments.m_buffer[node.m_segment3],
-NetManager.instance.m_segments.m_buffer[node.m_segment4],
-NetManager.instance.m_segments.m_buffer[node.m_segment5],
-NetManager.instance.m_segments.m_buffer[node.m_segment6],
-NetManager.instance.m_segments.m_buffer[node.m_segment7]
-};
-            
-
-            RoadBaseAI.TrafficLightState out1;
-            RoadBaseAI.TrafficLightState out2;
-
-            foreach (var seg in segments)
-            {
-                NetSegment theSeg = seg;
-                if (theSeg.m_flags > 0)
-                {
-                    RoadBaseAI.GetTrafficLightState((ushort)nodeId, ref theSeg, SimulationManager.instance.m_currentFrameIndex, out out1, out out2);
-                    DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, out1.ToString());
-                }
-            }
-
             Singleton<NetManager>.instance.m_nodes.m_buffer[nodeId] = node;
         }
 
