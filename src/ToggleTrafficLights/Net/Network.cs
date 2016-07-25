@@ -80,7 +80,9 @@ namespace NetworkInterface
             {
                 object nodeIdObj = GetObject(request.Object);
                 int nodeId = Convert.ToInt32(nodeIdObj);
-                retObj = GetSegmentDensity(nodeId, 0);
+                List<object> parameterObjs = GetParameters(request.Object);
+                int segId = Convert.ToInt32(parameterObjs[0]);
+                retObj = GetSegmentDensity(nodeId, segId);
             }
             else if (request.Method == MethodType.GETSTATE)
             {
@@ -90,7 +92,9 @@ namespace NetworkInterface
             }
             else if (request.Method == MethodType.SETSTATE)
             {
-
+                object nodeIdObj = GetObject(request.Object);
+                int nodeId = Convert.ToInt32(nodeIdObj);
+                retObj = SetNodeState(nodeId);
             }
             else
             {
@@ -104,7 +108,44 @@ namespace NetworkInterface
         {
             byte density = 0;
             NetNode node = SelectNode(nodeId);
+            ushort mSegId = 0;
+            switch (segId)
+            {
+                case 0:
+                    mSegId = node.m_segment0;
+                    break;
+                case 1:
+                    mSegId = node.m_segment1;
+                    break;
+                case 2:
+                    mSegId = node.m_segment2;
+                    break;
+                case 3:
+                    mSegId = node.m_segment3;
+                    break;
+                case 4:
+                    mSegId = node.m_segment4;
+                    break;
+                case 5:
+                    mSegId = node.m_segment5;
+                    break;
+                case 6:
+                    mSegId = node.m_segment6;
+                    break;
+                case 7:
+                    mSegId = node.m_segment7;
+                    break;
+                default:
+                    break;
+            }
+            density = NetManager.instance.m_segments.m_buffer[mSegId].m_trafficDensity;
             return density;
+        }
+
+        public object SetNodeState(int nodeId)
+        {
+            object retObj = null;
+            return retObj;
         }
 
         public object GetNodeState(int nodeId)
@@ -122,34 +163,32 @@ NetManager.instance.m_segments.m_buffer[node.m_segment6],
 NetManager.instance.m_segments.m_buffer[node.m_segment7]
 };
 
-            /*
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                "" + node.m_segment0 +
-                ", " + node.m_segment1 +
-                ", " + node.m_segment2 +
-                ", " + node.m_segment3 +
-                ", " + node.m_segment4 +
-                ", " + node.m_segment5 +
-                ", " + node.m_segment6 +
-                ", " + node.m_segment7);
-                */
-
             Dictionary<string, object> retObj = new Dictionary<string, object>();
+            /*
+            retObj.Add("m_segment0", node.m_segment0);
+            retObj.Add("m_segment1", node.m_segment1);
+            retObj.Add("m_segment2", node.m_segment2);
+            retObj.Add("m_segment3", node.m_segment3);
+            retObj.Add("m_segment4", node.m_segment4);
+            retObj.Add("m_segment5", node.m_segment5);
+            retObj.Add("m_segment6", node.m_segment6);
+            retObj.Add("m_segment7", node.m_segment7);
+            */
             int i = 0;
             foreach (NetSegment seg in segments)
             {
                 NetSegment theSeg = seg;
                 if (theSeg.m_flags > 0)
                 {
-                    Dictionary<string, RoadBaseAI.TrafficLightState> segDict = new Dictionary<string, RoadBaseAI.TrafficLightState>();
+                    Dictionary<string, string> segDict = new Dictionary<string, string>();
                     RoadBaseAI.TrafficLightState vehicleState;
                     RoadBaseAI.TrafficLightState pedState;
                     RoadBaseAI.GetTrafficLightState((ushort)nodeId, ref theSeg,
                         SimulationManager.instance.m_currentFrameIndex,
                         out vehicleState,
                         out pedState);
-                    segDict.Add("vehicle", vehicleState);
-                    segDict.Add("pedestrian", vehicleState);
+                    segDict.Add("vehicle", vehicleState.ToString());
+                    segDict.Add("pedestrian", vehicleState.ToString());
                     retObj.Add("segment" + i, segDict);
                 }
                 i++;
@@ -184,11 +223,6 @@ NetManager.instance.m_segments.m_buffer[node.m_segment7]
                     ctx = null;
                 }
             }
-
-            /*
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-            "Getting: " + obj.Name + " of type: " + obj.Type + " from context:" + ctx);
-            */
 
             // get object data now
             if (obj.Type == ObjectType.CLASS)
@@ -231,6 +265,21 @@ NetManager.instance.m_segments.m_buffer[node.m_segment7]
             return retObj;
         }
 
+        public List<object> GetParameters(NetworkObject obj)
+        {
+            // get parameters (if they exist)
+            List<object> parameters = new List<object>();
+            if (obj.Parameters != null)
+            {
+                for (int i = 0; i < obj.Parameters.Count; i++)
+                {
+                    object param = GetObject(obj.Parameters.ElementAt(i));
+                    parameters.Add(param);
+                }
+            }
+            return parameters;
+        }
+
         public object GetObjectMember(Type contextType, object ctx, NetworkObject obj)
         {
             object retObj = null;
@@ -238,15 +287,7 @@ NetManager.instance.m_segments.m_buffer[node.m_segment7]
             if (contextType != null)
             {
                 // get parameters (if they exist)
-                List<object> parameters = new List<object>();
-                if (obj.Parameters != null)
-                {
-                    for (int i = 0; i < obj.Parameters.Count; i++)
-                    {
-                        object param = GetObject(obj.Parameters.ElementAt(i));
-                        parameters.Add(param);
-                    }
-                }
+                List<object> parameters = GetParameters(obj);
                 // now actually get the member
                 MemberInfo[] mia = contextType.GetMember(obj.Name);
                 foreach (var mi in mia)
