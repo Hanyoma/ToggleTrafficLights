@@ -94,7 +94,22 @@ namespace NetworkInterface
             {
                 object nodeIdObj = GetObject(request.Object);
                 int nodeId = Convert.ToInt32(nodeIdObj);
-                retObj = SetNodeState(nodeId);
+                List<object> parameterObjs = GetParameters(request.Object);
+                // get segment id
+                int segId = Convert.ToInt32(parameterObjs[0]);
+                // get vehicle state
+                string segState = Convert.ToString(parameterObjs[1]);
+                RoadBaseAI.TrafficLightState vehicleState = 
+                    (RoadBaseAI.TrafficLightState) Enum.Parse(
+                        typeof(RoadBaseAI.TrafficLightState),
+                        segState);
+                // get pedestrian state
+                segState = Convert.ToString(parameterObjs[1]);
+                RoadBaseAI.TrafficLightState pedestrianState = 
+                    (RoadBaseAI.TrafficLightState) Enum.Parse(
+                        typeof(RoadBaseAI.TrafficLightState),
+                        segState);
+                retObj = SetNodeState(nodeId, segId, vehicleState, pedestrianState);
             }
             else
             {
@@ -142,10 +157,49 @@ namespace NetworkInterface
             return density;
         }
 
-        public object SetNodeState(int nodeId)
+        public object SetNodeState(int nodeId, int segId, RoadBaseAI.TrafficLightState vehicleState, RoadBaseAI.TrafficLightState pedestrianState)
         {
-            object retObj = null;
-            return retObj;
+            NetNode node = SelectNode(nodeId);
+            ushort mSegId = 0;
+            switch (segId)
+            {
+                case 0:
+                    mSegId = node.m_segment0;
+                    break;
+                case 1:
+                    mSegId = node.m_segment1;
+                    break;
+                case 2:
+                    mSegId = node.m_segment2;
+                    break;
+                case 3:
+                    mSegId = node.m_segment3;
+                    break;
+                case 4:
+                    mSegId = node.m_segment4;
+                    break;
+                case 5:
+                    mSegId = node.m_segment5;
+                    break;
+                case 6:
+                    mSegId = node.m_segment6;
+                    break;
+                case 7:
+                    mSegId = node.m_segment7;
+                    break;
+                default:
+                    break;
+            }
+            bool pedestrians = true, vehicles = true;
+            RoadBaseAI.SetTrafficLightState((ushort)nodeId,
+                ref NetManager.instance.m_segments.m_buffer[mSegId],
+                SimulationManager.instance.m_currentFrameIndex,
+                vehicleState,
+                pedestrianState,
+                vehicles,
+                pedestrians
+                );
+            return true;
         }
 
         public object GetNodeState(int nodeId)
@@ -164,16 +218,7 @@ NetManager.instance.m_segments.m_buffer[node.m_segment7]
 };
 
             Dictionary<string, object> retObj = new Dictionary<string, object>();
-            /*
-            retObj.Add("m_segment0", node.m_segment0);
-            retObj.Add("m_segment1", node.m_segment1);
-            retObj.Add("m_segment2", node.m_segment2);
-            retObj.Add("m_segment3", node.m_segment3);
-            retObj.Add("m_segment4", node.m_segment4);
-            retObj.Add("m_segment5", node.m_segment5);
-            retObj.Add("m_segment6", node.m_segment6);
-            retObj.Add("m_segment7", node.m_segment7);
-            */
+
             int i = 0;
             foreach (NetSegment seg in segments)
             {
