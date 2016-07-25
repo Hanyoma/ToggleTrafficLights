@@ -6,8 +6,11 @@ using ICities;
 
 namespace Craxy.CitiesSkylines.ToggleTrafficLights
 {
-    public sealed class Mod : IUserMod
+    public sealed class Mod : LoadingExtensionBase, IUserMod
     {
+        private static bool sm_redirectionInstalled = false;
+
+    
         public string Name
         {
             get { return "Toggle Traffic Lights"; }
@@ -20,6 +23,17 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights
                 return "Remove or add traffic lights at intersections.";
             }
         }
+
+        public void OnEnabled()
+        {
+
+        }
+
+        public void OnDisabled()
+        {
+
+        }
+
 
         //// do not use option menu since options for elements are extremly limited...
         //// called (AND):
