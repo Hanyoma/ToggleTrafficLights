@@ -15,6 +15,28 @@ using NetworkInterface;
 
 namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
 {
+    public class CustomRoadBaseAI : RoadBaseAI
+    {
+        public override void SimulationStep(ushort nodeID, ref NetNode data)
+        {
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
+                "Got nodeID: " + nodeID);
+            if (NetworkInterface.Network.selectedNodeIds.Contains(nodeID))
+                return;
+            base.SimulationStep(nodeID, ref data);
+        }
+
+        public override void UpdateNode(ushort nodeID, ref NetNode data)
+        {
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
+                "Got nodeID: " + nodeID);
+            if (NetworkInterface.Network.selectedNodeIds.Contains(nodeID))
+                return;
+            base.UpdateNode(nodeID, ref data);
+        }
+    }
+
+
     public class ToggleTrafficLightsTool : DefaultToolWithNetNodeDetection
     {
         private IntersectionHighlighting _intersectionHighlighting;

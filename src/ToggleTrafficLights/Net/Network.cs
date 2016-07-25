@@ -33,6 +33,8 @@ namespace NetworkInterface
                 }
                 selectedNodeIds.Enqueue(nodeId);
             }
+            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
+                JsonConvert.SerializeObject(selectedNodeIds));
         }
 
         public static NetNode SelectNode(int index)
