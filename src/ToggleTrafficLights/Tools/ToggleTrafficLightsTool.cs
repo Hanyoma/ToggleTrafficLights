@@ -17,7 +17,7 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
 {
     public class CustomRoadBaseAI : RoadBaseAI
     {
-        public override void SimulationStep(ushort nodeID, ref NetNode data)
+        public void CustomSimulationStep(ushort nodeID, ref NetNode data)
         {
             DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
                 "Got nodeID: " + nodeID);
@@ -26,7 +26,7 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
             base.SimulationStep(nodeID, ref data);
         }
 
-        public override void UpdateNode(ushort nodeID, ref NetNode data)
+        public void CustomUpdateNode(ushort nodeID, ref NetNode data)
         {
             DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
                 "Got nodeID: " + nodeID);
