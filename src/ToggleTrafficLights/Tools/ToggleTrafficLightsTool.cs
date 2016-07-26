@@ -17,13 +17,23 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights.Tools
 {
     public class CustomRoadBaseAI : RoadBaseAI
     {
+        public static uint simStartFrame = 0;
+
+        public void Awake()
+        {
+
+        }
+
+        // this implements the Update method of MonoBehaviour
+        public void Update()
+        {
+
+        }
         public void CustomSimulationStep(ushort nodeID, ref NetNode data)
         {
-            DebugOutputPanel.AddMessage(PluginManager.MessageType.Message,
-                "Got nodeID: " + nodeID);
-            if (NetworkInterface.Network.selectedNodeIds.Contains(nodeID))
+          //   if (NetworkInterface.Network.selectedNodeIds.Contains(nodeID))
                 return;
-            base.SimulationStep(nodeID, ref data);
+            
         }
 
         public void CustomUpdateNode(ushort nodeID, ref NetNode data)

@@ -7,8 +7,8 @@ using Object = UnityEngine.Object;
 using System.Collections.Generic;
 using ColossalFramework.UI;
 using ColossalFramework.Math;
-
-
+using ColossalFramework.Plugins;
+using Craxy.CitiesSkylines.ToggleTrafficLights.Tools;
 
 namespace Craxy.CitiesSkylines.ToggleTrafficLights
 {
@@ -55,23 +55,25 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights
                 LoadingExtension.Instance.DetourInited = false;
             }
         }
-
+        
         public void initDetours()
         {
+                DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "Initializing Detours.");
+
             if (!LoadingExtension.Instance.DetourInited)
             {
                 bool detourFailed = false;
-
+               
                 try
                 {
                     Detours.Add(new Detour(typeof(RoadBaseAI).GetMethod("SimulationStep", new[] { typeof(ushort), typeof(NetNode).MakeByRefType() }),
-                        typeof(Tools.CustomRoadBaseAI).GetMethod("CustomSimulationStep")));
+                        typeof(CustomRoadBaseAI).GetMethod("CustomSimulationStep")));
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     detourFailed = true;
                 }
-
+                /*
                 try
                 {
                     Detours.Add(new Detour(typeof(RoadBaseAI).GetMethod("UpdateNode", new[] { typeof(ushort), typeof(NetNode).MakeByRefType() }),
@@ -81,7 +83,7 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights
                 {
                     detourFailed = true;
                 }
-
+                */
                 if (detourFailed)
                 {
                     UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", "Traffic Manager: President Edition detected an incompatibility with another mod! You can continue playing but it's NOT recommended. Traffic Manager will not work as expected.", true);
@@ -109,7 +111,42 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights
         {
             base.OnReleased();
         }
+        public override void OnLevelUnloading()
+        {
+            base.OnLevelUnloading();
+            if (Instance == null)
+                Instance = this;
+            revertDetours();
+            gameLoaded = false;
 
+        }
 
+        public override void OnLevelLoaded(LoadMode mode)
+        {
+            base.OnLevelLoaded(mode);
+
+            Instance = this;
+            gameLoaded = false;
+            switch (mode)
+            {
+                case LoadMode.NewGame:
+                case LoadMode.LoadGame:
+                    gameLoaded = true;
+                    break;
+                default:
+                    return;
+            }
+            try
+            {
+                DebugOutputPanel.AddMessage(PluginManager.MessageType.Message, "Calling  initDetours.");
+                initDetours();
+            }
+            catch (Exception e)
+            {
+                DebugOutputPanel.AddMessage(PluginManager.MessageType.Error,
+                "Error: " + e.Message);
+                Console.WriteLine("Error: " + e.Message);
+            }
+        }
     }
 }

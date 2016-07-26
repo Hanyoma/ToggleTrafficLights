@@ -8,7 +8,6 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights
 {
     public sealed class Mod : LoadingExtensionBase, IUserMod
     {
-        private static bool sm_redirectionInstalled = false;
 
     
         public string Name
@@ -24,6 +23,30 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights
             }
         }
 
+        public override void OnCreated(ILoading loading)
+        {
+            base.OnCreated(loading);
+
+        }
+
+        public override void OnLevelUnloading()
+        {
+            base.OnLevelUnloading();
+
+        }
+
+        public override void OnLevelLoaded(LoadMode mode)
+        {
+            base.OnLevelLoaded(mode);
+
+        }
+
+        public override void OnReleased()
+        {
+            base.OnReleased();
+
+        }
+
         public void OnEnabled()
         {
 
@@ -33,7 +56,6 @@ namespace Craxy.CitiesSkylines.ToggleTrafficLights
         {
 
         }
-
 
         //// do not use option menu since options for elements are extremly limited...
         //// called (AND):
